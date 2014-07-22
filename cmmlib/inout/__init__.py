@@ -4,9 +4,11 @@ import h5py
 from scipy.io import loadmat
 from scipy.sparse import csgraph
 from scipy import sparse
-from icgtools.wavefront_obj import loadobj
-from icgtools import off
-from icgtools.indexing import filter_reindex
+
+from wavefront_obj import loadobj
+import off
+from ..util import filter_reindex
+
 
 def load_nrw_mat(mat_file):
     data = loadmat(mat_file)

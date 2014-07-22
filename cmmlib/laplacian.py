@@ -141,14 +141,3 @@ def compute_mesh_laplacian(verts, tris, weight_type='cotangent',
     else:
         return L
 
-if __name__ == '__main__':
-    from icgtools.wavefront_obj import loadobj
-    verts, tris = loadobj('meshes/tudd/simple/plate_882_irregular.obj')
-    L1, A1 = compute_mesh_laplacian(verts, tris, area_type='lumped_mass')
-    import polyutils
-    s = polyutils.Surface(verts, tris)
-    B, D, W, Vn = s.laplace_operator
-    L2 = Vn - W
-    print (L2 + L1).nnz
-    print np.abs(D - A1 * 2).max()
-
