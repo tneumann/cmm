@@ -9,9 +9,7 @@ filename = 'meshes/bumpy_cube6.obj'
 
 verts, tris = load_mesh(filename)
 
-Phi_cpr = cmm.compressed_manifold_modes(
-    verts, tris, K, mu=mu
-)
+Phi_cpr = cmm.compressed_manifold_modes(verts, tris, K, mu=mu)
 Phi_dense = cmm.manifold_harmonics(verts, tris, K)
 Phi_vari = cmm.varimax_modes(verts, tris, K)
 
