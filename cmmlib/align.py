@@ -59,12 +59,14 @@ def optimal_permutation_greedy(frompts, topts, allow_reflection=True,
         is_reflection = D_reflect < D
         D = np.minimum(D, D_reflect)
     D = D.max() - D
-    K = frompts.shape[0]
+    K = topts.shape[0]
     C = np.zeros((frompts.shape[0], topts.shape[0]))
     for i in xrange(frompts.shape[0]):
         best = D[i].argmax()
+        if np.isinf(D[i, best]):
+            continue
         v = -1.0 if is_reflection[i, best] else 1.0
-        D[:, best] = 0
+        D[:, best] = -np.inf
         C_row = np.zeros(K)
         C_row[best] = v
         C[i] = C_row
