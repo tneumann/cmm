@@ -12,7 +12,8 @@ from orthomax import orthomax
 
 def compressed_manifold_modes(verts, tris, K, mu, init=None, scaled=False,
                               return_info=False, return_eigenvalues=False, return_D=False,
-                              order=True, **algorithm_params):
+                              order=True, algorithm=None,
+                              **algorithm_params):
     Q, vertex_area = compute_mesh_laplacian(verts, tris, 'cotangent', 
                                             return_vertex_area=True, area_type='lumped_mass')
     if scaled:
@@ -30,7 +31,10 @@ def compressed_manifold_modes(verts, tris, K, mu, init=None, scaled=False,
     else:
         Phi_init = None
 
-    Phi, info = solve_compressed_splitorth(
+    if algorithm is None:
+        algorithm = solve_compressed_splitorth
+
+    Phi, info = algorithm(
         Q, K, mu1=mu, Phi_init=Phi_init, D=D, Dinv=Dinv, 
         **algorithm_params)
 
@@ -209,3 +213,101 @@ def solve_compressed_splitorth(L, K, mu1=10., Phi_init=None, maxiter=None, callb
     info['P'] = P
     info['Phi'] = Phi
     return Phi, info
+
+
+def solve_compressed_osher(L, K, mu1=10., Phi_init=None, maxiter=None, callback=None, 
+                           D=None, Dinv=None,
+                           r=1., lambda_=1.,
+                           tol_abs=1.e-8, tol_rel=1.e-6,
+                           verbose=100):
+    N = L.shape[0] # alias
+    mu = mu1 / float(N)
+
+    # initial variables
+    if Phi_init is None:
+        Phi = np.linalg.qr(np.random.uniform(-1, 1, (H.shape[0], K)))[0]
+    else:
+        Phi = Phi_init
+    P = Q = Phi
+    b = np.zeros_like(Phi)
+    B = np.zeros_like(Phi)
+
+    # status variables for Phi-solve
+    Hsolve = None
+    refactorize = False
+
+    # iteration state
+    iters = count() if maxiter is None else xrange(maxiter)
+    converged = False
+
+    info = {}
+
+    if D is None:
+        D = sparse.identity(N)
+        Dinv = sparse.identity(N)
+
+    for i in iters:
+        # update Phi
+        if Hsolve is None or refactorize:
+            A = (-L - L.T + sparse.eye(L.shape[0], L.shape[0]) * (lambda_ + r)).tocsc()
+            if Hsolve is None:
+                Hsolve = cholesky(A, mode='simplicial')
+            elif refactorize:
+                Hsolve.cholesky_inplace(A)
+                refactorize = False
+        rhs = np.asfortranarray(r * (P - B) + lambda_ * (Q - b))
+        Phi = Hsolve(rhs)
+
+        # update Q
+        Q_old = Q
+        Q = shrink(Phi + b, mu / lambda_)
+
+        # update P
+        _PA = D * (Phi + B)
+        _PP = np.dot(_PA.T, _PA)
+        U, sigma, St = np.linalg.svd(_PP)
+        Sigma_inv = np.diag(np.sqrt(1.0 / sigma))
+        P_old = P
+        P = (Dinv * (_PA.dot(U.dot(Sigma_inv.dot(St))))) / r
+
+        # update residuals
+        b += Phi - Q
+        B += Phi - P
+
+        # compute primal and dual residual
+        snorm1 = np.linalg.norm(lambda_ * (Q - Q_old))
+        rnorm1 = np.linalg.norm(Phi - Q)
+        snorm2 = np.linalg.norm(r * (P - P_old))
+        rnorm2 = np.linalg.norm(Phi - P)
+        snorm = np.sqrt(snorm1**2 + snorm2**2)
+        rnorm = np.sqrt(rnorm1**2 + rnorm2**2)
+
+        if callback is not None:
+            try:
+                callback(L, mu, Phi, P, Q, r_primal=rnorm, r_dual=snorm)
+            except StopIteration:
+                converged = True
+
+        # convergence checks
+        eps_pri  = np.sqrt(Phi.shape[1]) * tol_abs + tol_rel * max(map(np.linalg.norm, [Phi, Q, P]))
+        eps_dual = np.sqrt(Phi.shape[1]) * tol_abs + tol_rel * max(np.linalg.norm(r * B), np.linalg.norm(lambda_ * b))
+        if rnorm < eps_pri and snorm < eps_dual or converged:
+            print "converge!"
+            converged = True
+        if verbose and (i % verbose == 0 or converged or (maxiter is not None and i == maxiter - 1)):
+            sparsity = np.sum(mu * np.abs(Q))
+            eig = (Phi * (L * Phi)).sum()
+            gap1 = np.linalg.norm(Q - Phi)
+            gap2 = np.linalg.norm(P - Phi)
+            #ortho = np.linalg.norm(Phi.T.dot((D.T * D) * Phi) - np.eye(Phi.shape[1]))
+            print i, 
+            print "o %0.8f" % (sparsity + eig), # %0.4f %0.4f" % (sparsity + eig, sparsity, eig), 
+            print " | r [%.8f %.8f %.8f] s [%.8f]" % (gap1, gap2, rnorm, snorm)
+        if converged:
+            break
+    info['num_iters'] = i
+    info['r_primal'] = np.linalg.norm(Phi - Q) + np.linalg.norm(Phi - P)
+    info['Q'] = Q
+    info['P'] = P
+    info['Phi'] = Phi
+    return P, info
