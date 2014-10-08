@@ -11,6 +11,8 @@ from traitsui.api import View, Item, HGroup, Group, EnumEditor
 from pyface.api import DirectoryDialog, OK
 
 def _centered(x):
+    if x is None:
+        return None
     vmax = np.maximum(np.abs(x.max(0)), np.abs(x.min(0)))
     vmin = -vmax
     x = ((x - vmin) / (vmax - vmin))
@@ -70,7 +72,7 @@ class WeightsVisualization(HasTraits):
         self._weights = map(_centered, weights) if center else weights
         self._verts = verts
         self._tris = tris
-        self._max_weight = self._weights[0].shape[1] - 1
+        self._max_weight = max(w.shape[1] - 1 for w in self._weights if w is not None)
         self._names = names
         #self._names = map(str, range(len(self._weights))) if names is None else names
         #if len(weights) == 2:
@@ -80,7 +82,6 @@ class WeightsVisualization(HasTraits):
         self._trimeshes = []
         self._offsets = []
         offset = np.zeros(3)
-        actor_prop = None
         for i, (verts_i, tris_i, weights_i) in enumerate(zip(verts, tris, weights)):
             if i > 0:
                 offset[offset_axis] += verts_i[:,offset_axis].ptp() * (1 + offset_spacing)
@@ -91,13 +92,16 @@ class WeightsVisualization(HasTraits):
             # draw mesh
             tm = mlab.triangular_mesh(
                 verts_i[:,0], verts_i[:,1], verts_i[:,2], tris_i, 
-                scalars=weights_i[:,0], colormap=colormap,
+                scalars=weights_i[:,0] if weights_i is not None else None, 
+                colormap=colormap,
                 vmin=vmin, vmax=vmax,
                 figure=self.scene.mayavi_scene)
+            if weights_i is None:
+                tm.actor.mapper.scalar_visibility = False
             # disable normal splitting
             tm.parent.parent.filter.splitting = False
 
-            if contours is not None:
+            if contours is not None and weights_i is not None:
                 from mayavi.modules.surface import Surface
                 engine = tm.scene.engine
                 tm_contour = Surface()
@@ -115,11 +119,7 @@ class WeightsVisualization(HasTraits):
             #tm.actor.actor.property.edit_traits()
             # for the next mesh, add the extent of the current mesh (plus spacing) to the offset
             self._offsets.append(offset.copy())
-            if actor_prop is None:
-                actor_prop = tm.actor.property
-                actor_prop.set(**actor_options)
-            else:
-                tm.actor.property = actor_prop
+            tm.actor.property.set(**actor_options)
             #if handle_points is not None:
             #    h = verts2.ptp()
             #    mlab.points3d(handle_points[:,0], handle_points[:,1], handle_points[:,2], scale_factor=h / 20)
@@ -133,6 +133,8 @@ class WeightsVisualization(HasTraits):
     def _update_view(self):
         for tms, w in zip(self._trimeshes, self._weights):
             tm = tms[0]
+            if w is None:
+                continue
             try:
                 tm.mlab_source.set(
                     scalars=w[:,self.weight_index])
