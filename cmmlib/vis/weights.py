@@ -22,6 +22,7 @@ class WeightsVisualization(HasTraits):
     scene = Instance(MlabSceneModel, (), kw=dict(background=(1,1,1)))
     weight_index = Range(value=0, low='_min_weight', high='_max_weight')
     display_all = Bool(True)
+    display_labels = Bool(True)
     _min_weight = Int(0)
     _max_weight = Int()
     selected_mesh = String()
@@ -29,7 +30,7 @@ class WeightsVisualization(HasTraits):
 
     save_all = Button()
 
-    def __init__(self, meshes, center=True, vmin=None, vmax=None, offset_axis=0, offset_spacing=0.2, contours=None, colormap='RdBu', actor_options=dict(), **kwargs):
+    def __init__(self, meshes, center=True, vmin=None, vmax=None, offset_axis=0, offset_spacing=0.2, contours=None, colormap='RdBu', show_labels=False, actor_options=dict(), **kwargs):
         HasTraits.__init__(self)
 
         if type(meshes) is dict:
@@ -80,9 +81,10 @@ class WeightsVisualization(HasTraits):
 
         # visualize each mesh
         self._trimeshes = []
+        self._texts = []
         self._offsets = []
         offset = np.zeros(3)
-        for i, (verts_i, tris_i, weights_i) in enumerate(zip(verts, tris, weights)):
+        for i, (verts_i, tris_i, weights_i, name_i) in enumerate(zip(verts, tris, weights, names)):
             if i > 0:
                 offset[offset_axis] += verts_i[:,offset_axis].ptp() * (1 + offset_spacing)
             if center:
@@ -114,6 +116,12 @@ class WeightsVisualization(HasTraits):
                 self._trimeshes.append([tm, tm_contour])
             else:
                 self._trimeshes.append([tm])
+
+            if show_labels:
+                txt = mlab.text(0, 0, str(name_i), z=0, color=(0, 0, 0), width=0.12)
+                txt.actor.text_scale_mode = 'none'
+                txt.property.set(font_size=11, justification='centered')
+                self._texts.append(txt)
 
 
             #tm.actor.actor.property.edit_traits()
@@ -147,16 +155,22 @@ class WeightsVisualization(HasTraits):
             for tms, offset in zip(self._trimeshes, self._offsets):
                 for tm in tms:
                     tm.actor.actor.position = offset
+            for txt, v, offset in zip(self._texts, self._verts, self._offsets):
+                ax = np.zeros(3)
+                ax[(np.abs(self._offsets[-1]).argmax() + 1) % 3] = 1.1
+                txt.x_position, txt.y_position, txt.z_position = (v.mean(axis=0) + v.ptp(axis=0) * ax) + offset
         else:
             for tms in self._trimeshes:
                 for tm in tms:
                     tm.actor.actor.position = (0, 0, 0)
 
-    @on_trait_change('display_all, selected_mesh')
+    @on_trait_change('display_all, selected_mesh, display_labels')
     def _update_mesh_visibilities(self):
         for name, tms in zip(self._names, self._trimeshes):
             for tm in tms:
                 tm.visible = self.display_all or name == self.selected_mesh
+        for txt in self._texts:
+            txt.visible = self.display_all and self.display_labels
 
     def _save_all_fired(self):
         file_dialog = DirectoryDialog(action = 'open', title = 'Select Directory')
@@ -181,6 +195,8 @@ class WeightsVisualization(HasTraits):
         HGroup(
             Item('weight_index', label='idx'),
             Item('display_all', label='all'),
+            Item('display_labels', label='labels', 
+                visible_when='len(object._texts) > 0 and object.display_all'),
             Item('selected_mesh', label='which', 
                  visible_when="len(object._names) > 1 and not object.display_all",
                  editor=EnumEditor(
