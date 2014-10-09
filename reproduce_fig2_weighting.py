@@ -45,13 +45,13 @@ Phi2_unscaled = cmm.compressed_manifold_modes(
 
 # visualize
 wv = WeightsVisualization([
-    (verts1, tris1, None, 'wireframe1'),
-    (verts2, tris2, None, 'wireframe2'),
-    (verts1, tris1, Phi1_unscaled, 'unscaled1'),
-    (verts2, tris2, Phi2_unscaled, 'unscaled2')
-    (verts1, tris1, Phi1_scaled, 'scaled1'),
-    (verts2, tris2, Phi2_scaled, 'scaled2'),
-], contours=5)
+    (verts1, tris1, None, 'Lo-Res Mesh'),
+    (verts2, tris2, None, 'Hi-Res Mesh'),
+    (verts1, tris1, Phi1_unscaled, 'Unweighted Lo-Res'),
+    (verts2, tris2, Phi2_unscaled, 'Unweighted Hi-Res'),
+    (verts1, tris1, Phi1_scaled, 'Weighted Lo-Res'),
+    (verts2, tris2, Phi2_scaled, 'Weighted Hi-Res'),
+], contours=5, show_labels=True)
 
 wv._trimeshes[0][0].actor.property.set(edge_visibility=True, line_width=1)
 wv._trimeshes[1][0].actor.property.set(edge_visibility=True, line_width=1)
