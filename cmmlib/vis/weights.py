@@ -201,7 +201,7 @@ class WeightsVisualization(HasTraits):
         Group(
         HGroup(
             Item('scene', editor=SceneEditor(scene_class=MayaviScene),
-                 height=400, width=400, show_label=False),
+                 height=800, width=800, show_label=False),
         ),
         HGroup(
             Item('weight_index', label='idx'),
