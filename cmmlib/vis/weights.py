@@ -73,7 +73,7 @@ class WeightsVisualization(HasTraits):
         self._weights = map(_centered, weights) if center else weights
         self._verts = verts
         self._tris = tris
-        valid_weights = [w.shape[1] - 1 for w in self._weights if w is not None]
+        valid_weights = [w.shape[-1] - 1 for w in self._weights if w is not None]
         self._max_weight = max(valid_weights) if len(valid_weights) > 0 else 0
         self._names = names
         #self._names = map(str, range(len(self._weights))) if names is None else names
@@ -98,7 +98,7 @@ class WeightsVisualization(HasTraits):
             # draw mesh
             tm = mlab.triangular_mesh(
                 verts_i[:,0], verts_i[:,1], verts_i[:,2], tris_i, 
-                scalars=weights_i[:,0] if weights_i is not None else None, 
+                scalars=weights_i[...,0] if weights_i is not None and not weights_i.dtype == np.uint8 else None, 
                 colormap=colormap,
                 vmin=vmin, vmax=vmax,
                 figure=self.scene.mayavi_scene)
@@ -152,8 +152,12 @@ class WeightsVisualization(HasTraits):
             if w is None:
                 continue
             try:
-                tm.mlab_source.set(
-                    scalars=w[:,self.weight_index])
+                wi = w[...,self.weight_index]
+                if wi.dtype == np.uint8:
+                    tm.actor.mapper.input.point_data.scalars = wi
+                    self.scene.render()
+                else:
+                    tm.mlab_source.set(scalars=wi)
             except IndexError:
                 logging.warn("coult not reference index %d" % self.weight_index)
 
