@@ -151,6 +151,7 @@ class WeightsVisualization(HasTraits):
 
     @on_trait_change('display_all')
     def _reposition_meshes(self):
+        self.scene.disable_render = True
         if self.display_all:
             for tms, offset in zip(self._trimeshes, self._offsets):
                 for tm in tms:
@@ -163,14 +164,17 @@ class WeightsVisualization(HasTraits):
             for tms in self._trimeshes:
                 for tm in tms:
                     tm.actor.actor.position = (0, 0, 0)
+        self.scene.disable_render = False
 
     @on_trait_change('display_all, selected_mesh, display_labels')
     def _update_mesh_visibilities(self):
+        self.scene.disable_render = True
         for name, tms in zip(self._names, self._trimeshes):
             for tm in tms:
                 tm.visible = self.display_all or name == self.selected_mesh
         for txt in self._texts:
             txt.visible = self.display_all and self.display_labels
+        self.scene.disable_render = False
 
     def _save_all_fired(self):
         file_dialog = DirectoryDialog(action = 'open', title = 'Select Directory')
