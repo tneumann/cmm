@@ -30,7 +30,7 @@ class WeightsVisualization(HasTraits):
 
     save_all = Button()
 
-    def __init__(self, meshes, center=True, vmin=None, vmax=None, offset_axis=0, offset_spacing=0.2, contours=None, colormap='RdBu', show_labels=False, actor_options=dict(), **kwargs):
+    def __init__(self, meshes, center=True, vmin=None, vmax=None, offset_axis=0, offset_spacing=0.2, contours=None, colormap='RdBu', show_labels=False, actor_options=dict(), offset_axis2=1, offset_spacing2=0.5, label_offset_axis=None, label_offset=1.1, num_columns=None, **kwargs):
         HasTraits.__init__(self)
 
         if type(meshes) is dict:
@@ -87,6 +87,9 @@ class WeightsVisualization(HasTraits):
         for i, (verts_i, tris_i, weights_i, name_i) in enumerate(zip(verts, tris, weights, names)):
             if i > 0:
                 offset[offset_axis] += verts_i[:,offset_axis].ptp() * (1 + offset_spacing)
+            if num_columns is not None and i % num_columns == 0:
+                offset[offset_axis2] += verts_i[:, offset_axis2].ptp() * (1 + offset_spacing2)
+                offset[offset_axis] = 0
             if center:
                 vmin, vmax = 0, 1
             else:
@@ -134,6 +137,10 @@ class WeightsVisualization(HasTraits):
 
         #actor_prop.edit_traits()
         self.selected_mesh = self._names[0]
+        self._label_offset_axis = label_offset_axis
+        self._label_offset = label_offset
+        if self._label_offset_axis is None:
+            self._label_offset_axis = (np.abs(self._offsets[-1]).argmax() + 1) % 3
         self._update_view()
         self._reposition_meshes()
 
@@ -158,7 +165,7 @@ class WeightsVisualization(HasTraits):
                     tm.actor.actor.position = offset
             for txt, v, offset in zip(self._texts, self._verts, self._offsets):
                 ax = np.zeros(3)
-                ax[(np.abs(self._offsets[-1]).argmax() + 1) % 3] = 1.1
+                ax[self._label_offset_axis] = self._label_offset
                 txt.x_position, txt.y_position, txt.z_position = (v.mean(axis=0) + v.ptp(axis=0) * ax) + offset
         else:
             for tms in self._trimeshes:
