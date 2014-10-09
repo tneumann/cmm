@@ -14,4 +14,4 @@ Phi_dense = cmm.manifold_harmonics(verts, tris, K)
 Phi_vari = cmm.varimax_modes(verts, tris, K)
 
 show_weights(verts, tris, (Phi_cpr, Phi_dense, Phi_vari),
-             ('compressed', 'dense', 'varimax'))
+             ('CMM', 'MH', 'Varimax'), show_labels=True)
