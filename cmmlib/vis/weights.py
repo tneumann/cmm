@@ -73,7 +73,8 @@ class WeightsVisualization(HasTraits):
         self._weights = map(_centered, weights) if center else weights
         self._verts = verts
         self._tris = tris
-        self._max_weight = max(w.shape[1] - 1 for w in self._weights if w is not None)
+        valid_weights = [w.shape[1] - 1 for w in self._weights if w is not None]
+        self._max_weight = max(valid_weights) if len(valid_weights) > 0 else 0
         self._names = names
         #self._names = map(str, range(len(self._weights))) if names is None else names
         #if len(weights) == 2:
