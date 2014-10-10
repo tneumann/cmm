@@ -6,6 +6,12 @@ def veclen(vectors):
     return np.sqrt(np.sum(vectors**2, axis=-1))
 
 
+def normalized(vectors):
+    """ normalize vector(s) such that ||vectors|| == 1 """
+    lengths = veclen(vectors)
+    return vectors / lengths[..., np.newaxis]
+
+
 def filter_reindex(condition, target):
     """
     Filtering of index arrays.
