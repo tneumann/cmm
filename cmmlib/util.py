@@ -5,6 +5,7 @@ def veclen(vectors):
     """ return L2 norm (vector length) along the last axis, for example to compute the length of an array of vectors """
     return np.sqrt(np.sum(vectors**2, axis=-1))
 
+
 def filter_reindex(condition, target):
     """
     Filtering of index arrays.
@@ -47,3 +48,11 @@ def filter_reindex(condition, target):
     reindex = np.cumsum(condition) - 1
     return reindex[target]
 
+
+def compute_average_edge_length(verts, tris):
+    edges = tris[:, [0, 1, 1, 2, 2, 0]].reshape(-1, 2)
+    edges = np.sort(edges, axis=1)
+    ij_dtype = [('i', edges.dtype), ('j', edges.dtype)]
+    edges_uniq = np.unique(edges.view(dtype=ij_dtype))
+    edges_uniq = edges_uniq.view(dtype=edges.dtype).reshape(-1, 2)
+    return veclen(verts[edges_uniq[:, 0]] - verts[edges_uniq[:, 1]]).mean()
