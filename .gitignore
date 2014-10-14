@@ -53,3 +53,6 @@ coverage.xml
 docs/_build/
 
 meshes/scape
+meshes/tosca
+cache
+cmm_dataset
