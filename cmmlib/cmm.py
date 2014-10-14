@@ -192,7 +192,8 @@ def solve_compressed_splitorth(L, K, mu1=10., Phi_init=None, maxiter=None, callb
             eps_dual = np.sqrt(Phi.shape[1]) * tol_abs + tol_rel * np.linalg.norm(rho * U)
             # TODO check if convergence check is correct for 3-function ADMM
             if rnorm < eps_pri and snorm < eps_dual or converged:
-                print "converge!"
+                if verbose:
+                    print "converged!"
                 converged = True
             if verbose and (i % verbose == 0 or converged or (maxiter is not None and i == maxiter - 1)):
                 sparsity = np.sum(mu * np.abs(Q))
@@ -292,7 +293,8 @@ def solve_compressed_osher(L, K, mu1=10., Phi_init=None, maxiter=None, callback=
         eps_pri  = np.sqrt(Phi.shape[1]) * tol_abs + tol_rel * max(map(np.linalg.norm, [Phi, Q, P]))
         eps_dual = np.sqrt(Phi.shape[1]) * tol_abs + tol_rel * max(np.linalg.norm(r * B), np.linalg.norm(lambda_ * b))
         if rnorm < eps_pri and snorm < eps_dual or converged:
-            print "converge!"
+            if verbose:
+                print "converged!"
             converged = True
         if verbose and (i % verbose == 0 or converged or (maxiter is not None and i == maxiter - 1)):
             sparsity = np.sum(mu * np.abs(Q))
