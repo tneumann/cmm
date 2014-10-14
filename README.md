@@ -20,9 +20,14 @@ The code is written in Python 2.7 and requires
 ## Installation
 
 ### Ubuntu
+
+Add "sudo" when required:
+
 ```
-$ sudo apt-get install python-numpy python-scipy mayavi2 python-matplotlib
+$ apt-get install python-numpy python-scipy mayavi2 python-matplotlib libsuitesparse-dev
+$ pip install scikits.sparse
 ```
+
 Additional dependencies:
 ```
 $ pip install plac joblib
