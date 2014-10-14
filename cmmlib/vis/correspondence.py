@@ -20,7 +20,7 @@ def show_correspondence(verts1, tris1, verts2, tris2, ij, points=5, show_spheres
                         scalars=None, colormap='gist_rainbow', blend_factor=0.9, 
                         compute_blend_weights=compute_fake_weights,
                         color_only_correspondences=1, color_no_correspondence=(0,0,0),
-                        offset_factor=(1.5, 0., 0.), 
+                        offset_factor=(1.5, 0., 0.), block=True,
                        ):
     mlab.figure(bgcolor=(1,1,1))
     # select sparse points to visualize
@@ -74,4 +74,5 @@ def show_correspondence(verts1, tris1, verts2, tris2, ij, points=5, show_spheres
     # show meshes
     vismesh(verts1, tris1, scalars=scalars)
     vismesh(verts2 + offset, tris2, scalars=scalars2)
-    mlab.show()
+    if block:
+        mlab.show()
