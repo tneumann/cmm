@@ -19,9 +19,7 @@ The code is written in Python 2.7 and requires
  - plac (only for "compute_cmm.py" and "export_cmm_dataset.sh")
  - joblib (only for "reproduce_fig14_functionalmaps.py")
 
-## Installation
-
-### Ubuntu
+### Installation on Ubuntu
 
 Add "sudo" when required:
 
@@ -35,11 +33,11 @@ Additional dependencies:
 $ pip install plac joblib
 ```
 
-### Windows
+### Installation on Windows
 
 There are many free scientific Python distributions such as [Python(x,y)](https://code.google.com/p/pythonxy/) or [Anaconda](http://continuum.io/downloads). These should come with all the dependencies listed above. [WinPython](http://winpython.sourceforge.net/) is also nice but requires additional installation of some of those dependencies (such as mayavi, plac, joblib).
 
-### Mac OS
+### Installation on Mac OS
 
 AFAIK, all the dependencies can be installed using pip and homebrew, or you can use the [Anaconda](http://continuum.io/downloads) Python distribution.
 
