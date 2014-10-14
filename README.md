@@ -3,7 +3,9 @@ cmm
 
 Reference implementation as well as all scripts to reproduce the results from the paper "Compressed Manifold Modes for Mesh Processing", as presented at SGP 2014.
 
-## External Dependencies:
+![Compressed Manifold Modes Teaser](http://www.drematrix.de/wordpress/wp-content/uploads/2014/07/cmm_teaser.jpg)
+
+## External Dependencies
 
 The code is written in Python 2.7 and requires
 
@@ -15,9 +17,9 @@ The code is written in Python 2.7 and requires
  - plac (only for "compute_cmm.py" and "export_cmm_dataset.sh")
  - joblib (only for "reproduce_fig14_functionalmaps.py")
 
-### Installation
+## Installation
 
-#### Ubuntu
+### Ubuntu
 ```
 $ sudo apt-get install python-numpy python-scipy mayavi2 python-matplotlib
 ```
@@ -26,15 +28,15 @@ Additional dependencies:
 $ pip install plac joblib
 ```
 
-#### Windows
+### Windows
 
 There are many free scientific Python distributions such as [Python(x,y)](https://code.google.com/p/pythonxy/) or [Anaconda](http://continuum.io/downloads). These should come with all the dependencies listed above. [WinPython](http://winpython.sourceforge.net/) is also nice but requires additional installation of some of those dependencies (such as mayavi, plac, joblib).
 
-#### Mac OS
+### Mac OS
 
 AFAIK, all the dependencies can be installed using pip and homebrew, or you can use the [Anaconda](http://continuum.io/downloads) Python distribution.
 
-## Description of scripts:
+## Description of scripts
 
 ### reproduce_*.py
 There are scripts to reproduce the various figures in the paper. For example, "reproduce_fig1_teaser.py" reproduces the teaser figure. It displays the computed CMMs as well as manifold harmonics and varimax modes as a 3D visualization. It is possible to rotate around the meshes. To change to the next eigenfunction use the "idx" slider on the bottom of the window. There are some other controls next to that slider that should be self-explanatory. You can also make a screenshot of all eigenfunctions after a good camera viewpoint was found with the button "Save all".
