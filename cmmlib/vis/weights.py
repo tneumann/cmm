@@ -6,7 +6,7 @@ from mayavi import mlab
 from traits.api import Any, HasTraits, Range, Int, String, Instance, on_trait_change, Bool, List, Button
 from tvtk.pyface.scene_editor import SceneEditor
 from mayavi.tools.mlab_scene_model import MlabSceneModel
-from mayavi.core.ui.mayavi_scene import MayaviScene
+from tvtk.pyface.api import Scene
 from traitsui.api import View, Item, HGroup, Group, EnumEditor
 from pyface.api import DirectoryDialog, OK
 
@@ -205,7 +205,7 @@ class WeightsVisualization(HasTraits):
     view = View(
         Group(
         HGroup(
-            Item('scene', editor=SceneEditor(scene_class=MayaviScene),
+            Item('scene', editor=SceneEditor(scene_class=Scene),
                  height=800, width=800, show_label=False),
         ),
         HGroup(
