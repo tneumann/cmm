@@ -58,3 +58,19 @@ To output the results in various formats (simple Text-File, Matlab, HDF5, NPY9 y
 $ mkdir /tmp/test_hand
 $ python compute_cmm.py meshes/hand_868.obj 6 2.0 -o /tmp/test_hand -ply -off
 ```
+
+## Bibtex Entry
+
+If you use this code in research, please cite:
+```
+@article {CMM2014,
+  author = {Neumann, T. and Varanasi, K. and Theobalt, C. and Magnor, M. and Wacker, M.},
+  title = {Compressed Manifold Modes for Mesh Processing},
+  journal = {Computer Graphics Forum},
+  volume = {33},
+  number = {5},
+  issn = {1467-8659},
+  pages = {35--44},
+  year = {2014},
+}
+```
