@@ -3,6 +3,8 @@ cmm
 
 Reference implementation as well as all scripts to reproduce the results from the paper "Compressed Manifold Modes for Mesh Processing", as presented at SGP 2014.
 
+More infos (including the paper) can be found on the [project page](http://www.drematrix.de/?portfolio=english-compressed-manifold-modes-for-mesh-processing&lang=en).
+
 ![Compressed Manifold Modes Teaser](http://www.drematrix.de/wordpress/wp-content/uploads/2014/07/cmm_teaser.jpg)
 
 ## External Dependencies
