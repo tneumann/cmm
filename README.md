@@ -53,7 +53,7 @@ Example that computes K=6 basis functions with mu=2.0 on the hand mesh:
 $ python compute_cmm.py meshes/hand_868.obj 6 2.0 -v
 ```
 The "-v" flag toggles interactive visualization of the resulting eigenfunctions.
-To output the results in various formats (simple Text-File, Matlab, HDF5, NPY9 you have to specify an output directory with the "-o" option. You can also output visualizations in PLY and OFF (with "-off" and "-ply"):
+To output the results in various formats (simple Text-File, Matlab, HDF5, NPY) you have to specify an output directory with the "-o" option. You can also output visualizations as PLY and OFF (with "-off" and "-ply"):
 ```
 $ mkdir /tmp/test_hand
 $ python compute_cmm.py meshes/hand_868.obj 6 2.0 -o /tmp/test_hand -ply -off
