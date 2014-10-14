@@ -112,27 +112,5 @@ def load_shape_pair(filename1, filename2, **kwargs):
         ij = np.column_stack((np.arange(len(verts1)), np.arange(len(verts2))))
     else:
         map_file = path.join(basedir1, "%s_%s.ij" % (basename1, basename2))
-        if path.exists(map_file):
-            # new map files
-            ij = np.loadtxt(map_file, dtype=np.int)
-        else:
-            # old map file format
-            map1_file = '%s/%s_map.npy' % (basedir1, basename1)
-            if path.exists(map1_file):
-                ij1 = np.load(map1_file)
-            else:
-                print map1_file, "doesn't exist"
-                ij1 = np.column_stack((np.arange(len(verts1)), np.arange(len(verts1))))
-            map2_file = '%s/%s_map.npy' % (basedir2, basename2)
-            if path.exists(map2_file):
-                ij2 = np.load(map2_file)
-            else:
-                print map2_file, "doesn't exist"
-                ij2 = np.column_stack((np.arange(len(verts2)), np.arange(len(verts2))))
-            ij = []
-            ij2 = dict(ij2)
-            for i1, j1 in ij1:
-                if i1 in ij2:
-                    ij.append((j1, ij2[i1]))
-            ij = np.array(ij)
+        ij = np.loadtxt(map_file, dtype=np.int)
     return verts1, tris1, verts2, tris2, ij
