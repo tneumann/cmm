@@ -196,8 +196,8 @@ def solve_compressed_splitorth(L, K, mu1=10., Phi_init=None, maxiter=None, callb
                     print "converged!"
                 converged = True
             if verbose and (i % verbose == 0 or converged or (maxiter is not None and i == maxiter - 1)):
-                sparsity = np.sum(mu * np.abs(Q))
-                eig = (Phi * (L * Phi)).sum()
+                sparsity = np.sum(mu * np.abs(Phi))
+                eig = -(Phi * (L * Phi)).sum()
                 gap1 = np.linalg.norm(Q - Phi)
                 gap2 = np.linalg.norm(P - Phi)
                 #ortho = np.linalg.norm(Phi.T.dot((D.T * D) * Phi) - np.eye(Phi.shape[1]))
@@ -297,8 +297,8 @@ def solve_compressed_osher(L, K, mu1=10., Phi_init=None, maxiter=None, callback=
                 print "converged!"
             converged = True
         if verbose and (i % verbose == 0 or converged or (maxiter is not None and i == maxiter - 1)):
-            sparsity = np.sum(mu * np.abs(Q))
-            eig = (Phi * (L * Phi)).sum()
+            sparsity = np.sum(mu * np.abs(Phi))
+            eig = -(Phi * (L * Phi)).sum()
             gap1 = np.linalg.norm(Q - Phi)
             gap2 = np.linalg.norm(P - Phi)
             #ortho = np.linalg.norm(Phi.T.dot((D.T * D) * Phi) - np.eye(Phi.shape[1]))
