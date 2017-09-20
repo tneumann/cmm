@@ -1,9 +1,9 @@
 import numpy as np
 from scipy import sparse
-from scikits.sparse.cholmod import cholesky
 
 from util import veclen, normalized
 from laplacian import compute_mesh_laplacian
+from prefactor import factorized
 
 
 class GeodesicDistanceComputation(object):
@@ -40,9 +40,9 @@ class GeodesicDistanceComputation(object):
         Lc, vertex_area = compute_mesh_laplacian(verts, tris, area_type='lumped_mass')
         A = sparse.spdiags(vertex_area, 0, len(verts), len(verts))
         #self._factored_AtLc = splu((A - t * Lc).tocsc()).solve
-        self._factored_AtLc = cholesky((A - t * Lc).tocsc(), mode='simplicial')
+        self._factored_AtLc = factorized((A - t * Lc).tocsc())
         #self._factored_L = splu(Lc.tocsc()).solve
-        self._factored_L = cholesky(Lc.tocsc(), mode='simplicial')
+        self._factored_L = factorized(Lc.tocsc())
 
     def __call__(self, idx):
         """

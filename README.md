@@ -9,15 +9,18 @@ More infos (including the paper) can be found on the [project page](http://www.d
 
 ## External Dependencies
 
-The code is written in Python 2.7 and requires
+The code is written in Python 2.7 and requires at least
 
  - numpy
  - scipy
- - scikits.sparse.cholmod
+
+Additional dependencies are needed for some features:
+
  - mayavi + traits + vtk + tvtk + pyface (only for 3d visualization)
  - matplotlib (only for 2d visualization)
  - plac (only for "compute_cmm.py" and "export_cmm_dataset.sh")
  - joblib (only for "reproduce_fig14_functionalmaps.py")
+ - scikits.sparse.cholmod (code runs without this library - needed only when you want to use the faster cholesky factorization)
 
 ### Installation on Ubuntu
 

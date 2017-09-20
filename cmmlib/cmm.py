@@ -2,11 +2,11 @@ from itertools import count
 import logging
 import numpy as np
 from scipy import sparse
-from scikits.sparse.cholmod import cholesky, CholmodError
 from scipy.sparse.linalg import eigsh
 
 from laplacian import compute_mesh_laplacian
 from orthomax import orthomax
+from prefactor import factorized
 
 
 
@@ -75,7 +75,7 @@ def manifold_harmonics(verts, tris, K, scaled=True, return_D=False, return_eigen
     except RuntimeError, e:
         if e.message == 'Factor is exactly singular':
             logging.warn("factor is singular, trying some regularization and cholmod")
-            chol_solve = cholesky(-Q + sparse.eye(Q.shape[0]) * 1.e-9, mode='simplicial')
+            chol_solve = factorized(-Q + sparse.eye(Q.shape[0]) * 1.e-9)
             OPinv = sparse.linalg.LinearOperator(Q.shape, matvec=chol_solve)
             lambda_dense, Phi_dense = eigsh(-Q, M=D, k=K, sigma=0, OPinv=OPinv)
         else:
@@ -154,9 +154,10 @@ def solve_compressed_splitorth(L, K, mu1=10., Phi_init=None, maxiter=None, callb
         # update P
         if Hsolve is None or refactorize:
             A = (-L - L.T + sparse.eye(L.shape[0], L.shape[0]) * rho).tocsc()
-            if Hsolve is None:
-                Hsolve = cholesky(A, mode='simplicial')
+            if Hsolve is None or (refactorize and not hasattr(Hsolve, 'cholesky_inplace')):
+                Hsolve = factorized(A)
             elif refactorize:
+                # when cholmod is available, use faster in-place refactorization
                 Hsolve.cholesky_inplace(A)
                 refactorize = False
         rhs = np.asfortranarray(rho * (Phi + U[1]))
@@ -251,11 +252,7 @@ def solve_compressed_osher(L, K, mu1=10., Phi_init=None, maxiter=None, callback=
         # update Phi
         if Hsolve is None or refactorize:
             A = (-L - L.T + sparse.eye(L.shape[0], L.shape[0]) * (lambda_ + r)).tocsc()
-            if Hsolve is None:
-                Hsolve = cholesky(A, mode='simplicial')
-            elif refactorize:
-                Hsolve.cholesky_inplace(A)
-                refactorize = False
+            Hsolve = factorized(A)
         rhs = np.asfortranarray(r * (P - B) + lambda_ * (Q - b))
         Phi = Hsolve(rhs)
 
